@@ -1,39 +1,117 @@
 package calculator
 
-import "fmt"
+import (
+	"errors"
+	"strconv"
+	"strings"
+)
 
-type Calculator struct{}
-
-func (c *Calculator) Addition(num1, num2 int) int {
-	return num1 + num2
-}
-// func (c *Calculator) StringAddition(str1, str2 string) string {
-// 	return str1 + str2
-	
-// }
-func (c *Calculator) Subtraction(num1, num2 int) int {
-	return num1 - num2
-}
-
-// func (c *Calculator) StringSubtraction(str1, str2 string) string {
-// 	return str1 + str2
-// }
-
-func (c *Calculator) Multiplication(num1, num2 int) int {
-	return num1 * num2
-}
-
-// func (c *Calculator) StringMultiplication(str1, str2 string) string {
-// 	return str1 + str2
-// }
-
-func (c *Calculator) Division(num1, num2 int) int {
-	if num2 == 0 {
-		fmt.Println("На 0 делить нельзя")
+func Calculate(input string) (string, error) {
+	tokens := strings.Split(input, " ")
+	if len(tokens) != 3 {
+		return "", errors.New("некорректный ввод. Используйте формат: 'a + b'")
 	}
-	return num1 / num2
+
+	a, b := tokens[0], tokens[2]
+	operator := tokens[1]
+
+	// Определяем, римские или арабские числа
+	isRoman := isRoman(a) && isRoman(b)
+	isArabic := isArabic(a) && isArabic(b)
+
+	if !isRoman && !isArabic {
+		return "", errors.New("используйте либо арабские, либо римские числа одновременно не < 1 и не > 10 включительно")
+	}
+
+	if isRoman {
+		return calculateRoman(a, operator, b)
+	}
+
+	return calculateArabic(a, operator, b)
 }
 
-// func (c *Calculator) StringDivision(str1, str2 string) string {
-// 	return str1 + str2
-// }	
+func calculateArabic(aStr, operator, bStr string) (string, error) {
+	a, err := strconv.Atoi(aStr)
+	if err != nil {
+		return "", errors.New("не удалось распознать число: " + aStr)
+	}
+
+	b, err := strconv.Atoi(bStr)
+	if err != nil {
+		return "", errors.New("не удалось распознать число: " + bStr)
+	}
+
+	if a < 1 || a > 10 || b < 1 || b > 10 {
+		return "", errors.New("числа должны быть от 1 до 10 включительно")
+	}
+
+	var result int
+	switch operator {
+	case "+":
+		result = a + b
+	case "-":
+		result = a - b
+	case "*":
+		result = a * b
+	case "/":
+		if b == 0 {
+			return "", errors.New("деление на ноль")
+		}
+		result = a / b
+	default:
+		return "", errors.New("некорректный оператор: " + operator)
+	}
+
+	return strconv.Itoa(result), nil
+}
+
+func calculateRoman(aStr, operator, bStr string) (string, error) {
+	a, err := RomanToArabic(aStr)
+	if err != nil {
+		return "", err
+	}
+
+	b, err := RomanToArabic(bStr)
+	if err != nil {
+		return "", err
+	}
+
+	if a < 1 || a > 10 || b < 1 || b > 10 {
+		return "", errors.New("римские числа должны быть от I до X включительно")
+	}
+
+	var result int
+	switch operator {
+	case "+":
+		result = a + b
+	case "-":
+		result = a - b
+	case "*":
+		result = a * b
+	case "/":
+		if b == 0 {
+			return "", errors.New("деление на ноль")
+		}
+		result = a / b
+	default:
+		return "", errors.New("некорректный оператор: " + operator)
+	}
+
+	if result < 1 {
+		return "", errors.New("результат меньше единицы невозможен для римских чисел")
+	}
+
+	return ArabicToRoman(result), nil
+}
+
+// Функция для проверки, является ли строка римским числом
+func isRoman(s string) bool {
+	_, err := RomanToArabic(s)
+	return err == nil
+}
+
+// Функция для проверки, является ли строка арабским числом
+func isArabic(s string) bool {
+	_, err := strconv.Atoi(s)
+	return err == nil
+}

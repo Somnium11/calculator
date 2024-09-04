@@ -1,25 +1,26 @@
 package main
 
 import (
+	"bufio"
 	"calculator/internal/calculator"
 	"fmt"
+	"os"
+	"strings"
 )
 
 func main() {
-	c := &calculator.Calculator{}
-	var num1, num2 int
-	fmt.Scan("Введите 2 числа через пробел: ", &num1, &num2)
-	op := "+"
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Println("Введите числа и операцию (например 3 + 5 или IV * VI):")
 
-	if op == "+" {
-        fmt.Println(c.Addition(num1, num2))
-    } else if op == "-" {
-        fmt.Println(c.Subtraction(num1, num2))
-    } else if op == "*" {
-        fmt.Println(c.Multiplication(num1, num2))
-    } else if op == "/" {
-        fmt.Println(c.Division(num1, num2))
-    } else {
-        fmt.Println("Invalid operator")
-    }
+	for {
+		input, _ := reader.ReadString('\n')
+		input = strings.TrimSpace(input)
+	
+		result, err := calculator.Calculate(input)
+		if err != nil {
+			fmt.Println("Ошибка:", err)
+		} else {
+			fmt.Println("Результат:", result)
+		}
+	}
 }
