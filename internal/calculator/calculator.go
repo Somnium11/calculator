@@ -1,7 +1,6 @@
 package calculator
 
 import (
-	"errors"
 	"strconv"
 	"strings"
 )
@@ -9,7 +8,7 @@ import (
 func Calculate(input string) (string, error) {
 	tokens := strings.Split(input, " ")
 	if len(tokens) != 3 {
-		return "", errors.New("некорректный ввод. Используйте формат: 'a + b'")
+		panic("некорректный ввод. Используйте формат: 'a + b'")
 	}
 
 	a, b := tokens[0], tokens[2]
@@ -20,7 +19,7 @@ func Calculate(input string) (string, error) {
 	isArabic := isArabic(a) && isArabic(b)
 
 	if !isRoman && !isArabic {
-		return "", errors.New("используйте либо арабские, либо римские числа одновременно не < 1 и не > 10 включительно")
+		panic("Используйте либо арабские, либо римские числа одновременно не < 1 и не > 10 включительно")
 	}
 
 	if isRoman {
@@ -33,16 +32,16 @@ func Calculate(input string) (string, error) {
 func calculateArabic(aStr, operator, bStr string) (string, error) {
 	a, err := strconv.Atoi(aStr)
 	if err != nil {
-		return "", errors.New("не удалось распознать число: " + aStr)
+		panic("не удалось распознать число: " + aStr)
 	}
 
 	b, err := strconv.Atoi(bStr)
 	if err != nil {
-		return "", errors.New("не удалось распознать число: " + bStr)
+		panic("не удалось распознать число: " + bStr)
 	}
 
 	if a < 1 || a > 10 || b < 1 || b > 10 {
-		return "", errors.New("числа должны быть от 1 до 10 включительно")
+		panic("числа должны быть от 1 до 10 включительно")
 	}
 
 	var result int
@@ -55,11 +54,11 @@ func calculateArabic(aStr, operator, bStr string) (string, error) {
 		result = a * b
 	case "/":
 		if b == 0 {
-			return "", errors.New("деление на ноль")
+			panic("деление на ноль")
 		}
 		result = a / b
 	default:
-		return "", errors.New("некорректный оператор: " + operator)
+		panic("некорректный оператор: " + operator)
 	}
 
 	return strconv.Itoa(result), nil
@@ -77,7 +76,7 @@ func calculateRoman(aStr, operator, bStr string) (string, error) {
 	}
 
 	if a < 1 || a > 10 || b < 1 || b > 10 {
-		return "", errors.New("римские числа должны быть от I до X включительно")
+		panic("римские числа должны быть от I до X включительно")
 	}
 
 	var result int
@@ -90,15 +89,15 @@ func calculateRoman(aStr, operator, bStr string) (string, error) {
 		result = a * b
 	case "/":
 		if b == 0 {
-			return "", errors.New("деление на ноль")
+			panic("деление на ноль")
 		}
 		result = a / b
 	default:
-		return "", errors.New("некорректный оператор: " + operator)
+		panic("некорректный оператор: " + operator)
 	}
 
 	if result < 1 {
-		return "", errors.New("результат меньше единицы невозможен для римских чисел")
+		panic("результат меньше единицы невозможен для римских чисел")
 	}
 
 	return ArabicToRoman(result), nil
