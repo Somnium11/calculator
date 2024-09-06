@@ -10,7 +10,7 @@ import (
 
 func main() {
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("Введите числа и операцию (например 3 + 5 или IV * VI). Для выхода введите 'exit':")
+	fmt.Println("Введите числа и операцию (например 3 + 5 или IV * VI):")
 
 	for {
 		fmt.Print("> ") // Приглашение к вводу
