@@ -2,6 +2,7 @@ package calculator
 
 import (
 	"strings"
+	"errors"
 )
 
 var romanToArabicMap = map[string]int{
@@ -31,7 +32,7 @@ func RomanToArabic(roman string) (int, error) {
 	if value, exists := romanToArabicMap[roman]; exists {
 		return value, nil
 	}
-	panic("некорректный ввод")
+	return 0, errors.New("некорректный ввод римского числа")
 }
 
 func ArabicToRoman(num int) string {

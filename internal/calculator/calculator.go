@@ -1,6 +1,7 @@
 package calculator
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 )
@@ -18,12 +19,13 @@ func Calculate(input string) (string, error) {
 	isRoman := isRoman(a) && isRoman(b)
 	isArabic := isArabic(a) && isArabic(b)
 
+	// Проверка на смешивание типов
 	if !isRoman && !isArabic {
-		panic("Используйте либо арабские, либо римские числа одновременно не < 1 и не > 10 включительно")
+		panic("Используйте либо арабские, либо римские числа одновременно")
 	}
 
 	if isRoman {
-		return calculateRoman(a, operator, b)
+		return calculateRoman(a, operator, b), nil
 	}
 
 	return calculateArabic(a, operator, b)
@@ -32,12 +34,12 @@ func Calculate(input string) (string, error) {
 func calculateArabic(aStr, operator, bStr string) (string, error) {
 	a, err := strconv.Atoi(aStr)
 	if err != nil {
-		panic("не удалось распознать число: " + aStr)
+		return "", errors.New("не удалось распознать число: " + aStr)
 	}
 
 	b, err := strconv.Atoi(bStr)
 	if err != nil {
-		panic("не удалось распознать число: " + bStr)
+		return "", errors.New("не удалось распознать число: " + bStr)
 	}
 
 	if a < 1 || a > 10 || b < 1 || b > 10 {
@@ -54,25 +56,25 @@ func calculateArabic(aStr, operator, bStr string) (string, error) {
 		result = a * b
 	case "/":
 		if b == 0 {
-			panic("деление на ноль")
+			return "", errors.New("деление на ноль")
 		}
 		result = a / b
 	default:
-		panic("некорректный оператор: " + operator)
+		return "", errors.New("некорректный оператор: " + operator)
 	}
 
 	return strconv.Itoa(result), nil
 }
 
-func calculateRoman(aStr, operator, bStr string) (string, error) {
+func calculateRoman(aStr, operator, bStr string) string {
 	a, err := RomanToArabic(aStr)
 	if err != nil {
-		return "", err
+		panic("некорректный ввод римского числа: " + aStr)
 	}
 
 	b, err := RomanToArabic(bStr)
 	if err != nil {
-		return "", err
+		panic("некорректный ввод римского числа: " + bStr)
 	}
 
 	if a < 1 || a > 10 || b < 1 || b > 10 {
@@ -100,16 +102,15 @@ func calculateRoman(aStr, operator, bStr string) (string, error) {
 		panic("результат меньше единицы невозможен для римских чисел")
 	}
 
-	return ArabicToRoman(result), nil
+	return ArabicToRoman(result)
 }
 
-// Функция для проверки, является ли строка римским числом
+
 func isRoman(s string) bool {
-	_, err := RomanToArabic(s)
-	return err == nil
+	_, exists := romanToArabicMap[s]
+	return exists
 }
 
-// Функция для проверки, является ли строка арабским числом
 func isArabic(s string) bool {
 	_, err := strconv.Atoi(s)
 	return err == nil
